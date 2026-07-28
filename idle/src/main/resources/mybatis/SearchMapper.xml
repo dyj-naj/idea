@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyj.idle.mapper.SearchMapper">
+
+
+    <select id="getSearchGoods" resultType="com.dyj.idle.entity.GoodsInfo">
+        SELECT
+            g.id AS goods_id,
+            gi.image_url AS goods_image,
+            g.send AS send,
+            g.price AS goods_price,
+            g.desc AS goods_description,
+            g.state AS state,
+            u.account AS user_account,
+            u.head_url AS user_avatar,
+            gh.look_num,
+            gh.want_num
+        FROM
+            goods g
+                JOIN
+            (
+                SELECT goods_id, MIN(image_order) AS min_image_order
+                FROM goods_images
+                GROUP BY goods_id
+            ) sub ON g.id = sub.goods_id
+                JOIN
+            goods_images gi ON g.id = gi.goods_id AND sub.min_image_order = gi.image_order
+                JOIN
+            user u ON g.seller = u.id
+                JOIN
+            goods_hot gh ON gh.goods_id=g.id
+
+        where g.desc like #{text}
+
+    </select>
+</mapper>

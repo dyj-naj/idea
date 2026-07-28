@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyj.idle.mapper.OrderMapper">
+
+    <select id="getOrderDetail" resultType="com.dyj.idle.entity.OrderDetail">
+        select
+            o.*,gi.image_url as goodsImage,g.`desc` as goods_desc,
+            TIMESTAMPDIFF(SECOND, NOW(), DATE_ADD(o.creat_time, INTERVAL 30 MINUTE)) AS count_down
+        from `order` as o
+                 JOIN goods as g
+                      ON g.id=o.goods_id
+                 JOIN goods_images gi
+                      ON gi.goods_id=o.goods_id
+        where o.id=#{orderId}
+        HAVING count_down>0
+            LIMIT 1
+    </select>
+    <select id="getAllOrder" resultType="com.dyj.idle.entity.OrderInfo">
+        SELECT
+            o.id,
+            o.pay_money as res_pay,
+            g.`desc` as goods_desc,
+            MAX(CASE
+                    WHEN gi.image_order = (SELECT MIN(image_order) FROM goods_images AS gi2 WHERE gi2.goods_id = gi.goods_id)
+                        THEN gi.image_url
+                END) as goods_image
+        FROM
+            `order` as o
+                JOIN
+            goods_images as gi ON gi.goods_id = o.goods_id
+                JOIN goods as g on g.id = o.goods_id
+        WHERE
+            o.buyer = #{id} and (o.state=0 or o.state=1)
+        GROUP BY
+            o.id;
+    </select>
+</mapper>

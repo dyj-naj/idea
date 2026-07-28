@@ -1,0 +1,65 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/idle}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    type: com.alibaba.druid.pool.DruidDataSource
+
+  data:
+    redis:
+      database: ${REDIS_DATABASE:0}
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      jedis:
+        pool:
+          max-active: 8
+          max-wait: -1
+          max-idle: 8
+          min-idle: 0
+          timeout: 10000
+      cache:
+        redis:
+          time-to-live: 360000000
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml
+  type-aliases-package: com.dyj.idle_admin.domain.po
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+sa-token:
+  token-name: satoken
+  timeout: 604800
+  active-timeout: -1
+  is-concurrent: false
+  is-log: true
+  token-style: uuid
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: default
+      paths-to-match: "/**"
+      packages-to-scan: com.dyj.idle_admin.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

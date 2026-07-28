@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyj.idle.mapper.GoodsMapper">
+    <update id="subStock">
+        UPDATE goods
+        SET stock = stock-1
+        WHERE id = #{goodsId} and stock>0;
+    </update>
+
+    <select id="getGoodsInfoList" resultType="com.dyj.idle.entity.GoodsInfo">
+        SELECT
+            g.id AS goods_id,
+            gi.image_url AS goods_image,
+            g.send AS send,
+            g.price AS goods_price,
+            g.desc AS goods_description,
+            g.state AS state,
+            u.account AS user_account,
+            u.head_url AS user_avatar,
+            gh.look_num,
+            gh.want_num
+        FROM
+            goods g
+                JOIN
+            (
+                SELECT goods_id, MIN(image_order) AS min_image_order
+                FROM goods_images
+                GROUP BY goods_id
+            ) sub ON g.id = sub.goods_id
+                JOIN
+            goods_images gi ON g.id = gi.goods_id AND sub.min_image_order = gi.image_order
+                JOIN
+            user u ON g.seller = u.id
+                JOIN
+            goods_hot gh ON gh.goods_id=g.id
+        WHERE
+            (
+                SELECT pricategory_id
+                FROM goods_category gc
+                WHERE gc.goods_id = g.id AND g.state=2
+            ) = #{categoryId}
+        LIMIT #{size} OFFSET #{skip}
+    </select>
+    <select id="getGoodsAllImage" resultType="java.lang.String">
+        select image_url
+        from goods_images
+        where goods_id=#{goodsId}
+    </select>
+    <select id="getGoodsById" resultType="com.dyj.idle.entity.GoodsDetail">
+        select goods.id as goods_id,
+               goods.seller as seller,
+               user.head_url as seller_head,
+               user.account as seller_account,
+               goods.creat_time as creat_time,
+               goods.desc as goods_desc,
+               goods.price as goods_price,
+               goods.freight as goods_freight,
+               goods.stock as goods_stock,
+               goods.`usage` as goods_usage,
+               goods.send as goods_send,
+               goods_hot.look_num as look_num,
+               goods_hot.want_num as want_num
+        from goods
+                 JOIN user ON goods.seller=user.id
+                 JOIN goods_hot ON goods.id=goods_hot.goods_id
+        where goods.id=#{goodsId}
+    </select>
+    <select id="getMyGoodsByTag" resultType="com.dyj.idle.entity.MyGoods">
+        SELECT
+            g.id as goods_id,
+            g.desc as goods_desc,
+            g.price as goods_price,
+            g.creat_time,
+            MAX(CASE WHEN gi.image_order = (SELECT MIN(image_order) FROM goods_images AS gi2 WHERE gi2.goods_id = gi.goods_id) THEN gi.image_url END) as goods_image
+        FROM goods as g
+                 JOIN goods_images as gi ON gi.goods_id = g.id
+        WHERE g.state=#{tag} and g.seller=#{userId}
+        GROUP BY g.id;
+    </select>
+    <select id="getMyCollect" resultType="com.dyj.idle.entity.MyGoods">
+        SELECT
+            g.id as goods_id,
+            g.desc as goods_desc,
+            g.price as goods_price,
+            g.creat_time,
+            MAX(CASE WHEN gi.image_order = (SELECT MIN(image_order) FROM goods_images AS gi2 WHERE gi2.goods_id = gi.goods_id) THEN gi.image_url END) as goods_image
+        FROM goods as g
+                 JOIN goods_images as gi ON gi.goods_id = g.id
+        WHERE g.id in (
+            SELECT goods_id FROM user_collection
+            WHERE user_id=#{userId})
+        GROUP BY g.id;
+    </select>
+
+
+</mapper>

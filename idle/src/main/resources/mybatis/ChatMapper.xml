@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyj.idle.mapper.ChatMapper">
+    <insert id="insertChatWindow">
+        INSERT into chat_window(id,seller,buyer,goods_id,goods_price,goods_send,goods_freight,last_time)
+        SELECT #{id},#{seller},#{buyer},#{goodsId},goods.price,goods.send,goods.freight,NOW()
+        from goods
+        WHERE id=#{goodsId}
+    </insert>
+    <select id="getAllChatWindow" resultType="com.dyj.idle.entity.ChatWindow">
+        SELECT
+            cw.id,
+            cw.buyer,
+            cw.seller,
+            cw.goods_id,
+            cw.last_time,
+            cw.goods_price,
+            cw.goods_freight,
+            cw.goods_send,
+            bu.head_url as buyer_head,
+            su.head_url as seller_head,
+            su.account as seller_account,
+            bu.account as buyer_account,
+            gi.image_url as goods_image,
+            g.stock as goods_stock
+        FROM
+            chat_window as cw
+                JOIN goods as g
+                ON g.id=cw.goods_id
+                JOIN `user` as bu
+                     ON cw.buyer = bu.id
+                JOIN `user` as su
+                     ON cw.seller = su.id
+                JOIN (
+                SELECT
+                    gi.goods_id,
+                    MIN(gi.image_order) as min_image_order
+                FROM
+                    goods_images gi
+                GROUP BY
+                    gi.goods_id
+            ) as gi_min
+                     ON gi_min.goods_id = cw.goods_id
+                JOIN goods_images as gi
+                     ON gi.goods_id = gi_min.goods_id
+                         AND gi.image_order = gi_min.min_image_order
+        WHERE
+            cw.buyer = #{userId} OR cw.seller = #{userId};
+    </select>
+
+</mapper>

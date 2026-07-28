@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dyj.idle_admin.mapper.GoodsMapper">
+
+    <select id="getGoodsList" resultType="com.dyj.idle_admin.domain.vo.GoodsVO">
+        <![CDATA[
+    SELECT
+        g.id AS id,
+        g.creat_time AS `create_time`,
+        g.desc AS  `desc`,
+        g.price AS price,
+        g.usage AS `usage`,
+        g.send AS send,
+        g.state AS goods_status,
+        g.category AS goods_category,
+        g.freight AS freight,
+        g.first_picture AS goods_picture,
+        u.account AS seller_account,
+        u.head_url AS seller_avatar
+    FROM goods g
+    JOIN goods_category gc ON g.id = gc.goods_id
+    JOIN user u ON g.seller = u.id
+    WHERE 1=1
+    ]]>
+
+        <!-- 分类条件处理 -->
+        <if test="query.condition.categoryIdList != null and query.condition.categoryIdList.size() >= 1">
+            AND gc.pricategory_id = #{query.condition.categoryIdList[0]}
+        </if>
+        <if test="query.condition.categoryIdList != null and query.condition.categoryIdList.size() >= 2">
+            AND gc.seccategory_id = #{query.condition.categoryIdList[1]}
+        </if>
+        <if test="query.condition.categoryIdList != null and query.condition.categoryIdList.size() >= 3">
+            AND gc.thicategory_id = #{query.condition.categoryIdList[2]}
+        </if>
+
+        <!-- 使用状态 -->
+        <if test="query.condition.usage != null and query.condition.usage != ''">
+            AND g.`usage` = #{query.condition.usage}
+        </if>
+
+        <!-- 时间范围 -->
+        <if test="query.condition.MinTime != null and query.condition.MaxTime != null">
+            AND g.creat_time BETWEEN #{query.condition.MinTime} AND #{query.condition.MaxTime}
+        </if>
+
+        <!-- 价格区间 -->
+        <if test="query.condition.MinPrice != null">
+            AND g.price &gt;= #{query.condition.MinPrice}
+        </if>
+        <if test="query.condition.MaxPrice != null">
+            AND g.price &lt;= #{query.condition.MaxPrice}
+        </if>
+
+        <!-- 运送方式 -->
+        <if test="query.condition.shippingWay != null and query.condition.shippingWay != ''">
+            AND g.send = #{query.condition.shippingWay}
+        </if>
+
+        <!-- 审核状态 -->
+        <if test="query.condition.auditStatus != null">
+            AND g.state = #{query.condition.auditStatus}
+        </if>
+
+        <!-- 动态排序 -->
+        ORDER BY
+        <choose>
+            <when test="query.condition.sortStatus != null and query.condition.sortStatus.code == 1">
+                g.creat_time ASC
+            </when>
+            <when test="query.condition.sortStatus != null and query.condition.sortStatus.code == 2">
+                g.creat_time DESC
+            </when>
+            <when test="query.condition.sortStatus != null and query.condition.sortStatus.code == 3">
+                g.price ASC
+            </when>
+            <when test="query.condition.sortStatus != null and query.condition.sortStatus.code == 4">
+                g.price DESC
+            </when>
+            <otherwise>
+                g.creat_time DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{query.pageSize} OFFSET #{query.offset}
+    </select>
+    <select id="getGoodsCount" resultType="java.lang.Long">
+        <![CDATA[
+    SELECT
+        COUNT(*)
+    FROM goods g
+    JOIN goods_category gc ON g.id = gc.goods_id
+    JOIN user u ON g.seller = u.id
+    WHERE 1=1
+    ]]>
+
+        <!-- 分类条件处理 -->
+        <if test="query.condition.categoryIdList != null and query.condition.categoryIdList.size() >= 1">
+            AND gc.pricategory_id = #{query.condition.categoryIdList[0]}
+        </if>
+        <if test="query.condition.categoryIdList != null and query.condition.categoryIdList.size() >= 2">
+            AND gc.seccategory_id = #{query.condition.categoryIdList[1]}
+        </if>
+        <if test="query.condition.categoryIdList != null and query.condition.categoryIdList.size() >= 3">
+            AND gc.thicategory_id = #{query.condition.categoryIdList[2]}
+        </if>
+
+        <!-- 使用状态 -->
+        <if test="query.condition.usage != null and query.condition.usage != ''">
+            AND g.`usage` = #{query.condition.usage}
+        </if>
+
+        <!-- 时间范围 -->
+        <if test="query.condition.MinTime != null and query.condition.MaxTime != null">
+            AND g.creat_time BETWEEN #{query.condition.MinTime} AND #{query.condition.MaxTime}
+        </if>
+
+        <!-- 价格区间 -->
+        <if test="query.condition.MinPrice != null">
+            AND g.price &gt;= #{query.condition.MinPrice}
+        </if>
+        <if test="query.condition.MaxPrice != null">
+            AND g.price &lt;= #{query.condition.MaxPrice}
+        </if>
+
+        <!-- 运送方式 -->
+        <if test="query.condition.shippingWay != null and query.condition.shippingWay != ''">
+            AND g.send = #{query.condition.shippingWay}
+        </if>
+
+        <!-- 审核状态 -->
+        <if test="query.condition.auditStatus != null">
+            AND g.state = #{query.condition.auditStatus}
+        </if>
+    </select>
+
+</mapper>

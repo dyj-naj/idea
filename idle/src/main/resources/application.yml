@@ -1,0 +1,74 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/idle}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    type: com.alibaba.druid.pool.DruidDataSource
+
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:1}
+      timeout: ${REDIS_TIMEOUT:60000}
+      lettuce:
+        pool:
+          max-active: 20
+          max-wait: 5
+          max-idle: 5
+          min-idle: 0
+      password: ${REDIS_PASSWORD:}
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST:/idle}
+    username: ${RABBITMQ_USERNAME:idle}
+    password: ${RABBITMQ_PASSWORD:}
+
+aliyun:
+  oss:
+    endpoint: ${ALIYUN_OSS_ENDPOINT:https://oss-cn-beijing.aliyuncs.com}
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}
+    bucket-name: ${ALIYUN_OSS_BUCKET_NAME:}
+
+mybatis:
+  type-aliases-package: com.dyj.idle.entity
+  mapper-locations: classpath:/mybatis/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+alipay:
+  app-id: ${ALIPAY_APP_ID:}
+  app-private-key: ${ALIPAY_APP_PRIVATE_KEY:}
+  alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+  notify-url: ${ALIPAY_NOTIFY_URL:}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: default
+      paths-to-match: "/**"
+      packages-to-scan: com.dyj.idle.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

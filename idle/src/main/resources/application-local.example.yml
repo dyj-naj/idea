@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/idle
+    username: root
+    password: your-db-password
+
+  data:
+    redis:
+      password: your-redis-password
+
+  rabbitmq:
+    password: your-rabbitmq-password
+
+aliyun:
+  oss:
+    access-key-id: your-aliyun-access-key-id
+    access-key-secret: your-aliyun-access-key-secret
+    bucket-name: your-bucket-name
+
+alipay:
+  app-id: your-alipay-app-id
+  app-private-key: your-alipay-private-key
+  alipay-public-key: your-alipay-public-key
+  notify-url: https://your-domain.example.com/alipay/notify
